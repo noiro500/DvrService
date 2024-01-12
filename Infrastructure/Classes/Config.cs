@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Reflection;
+using System.Text.Json;
 
 namespace DvrService.Infrastructure.Classes
 {
@@ -25,10 +26,16 @@ namespace DvrService.Infrastructure.Classes
     {
         public List<Camera> Cameras { get; set; }
         public string FFmpegPath { get; set; }
+        private string ConfigPath { get; set; }
 
-        public Config()
+        public Config(string configPath)
         {
-            var root=JsonSerializer.Deserialize<Root>(File.ReadAllText(Environment.CurrentDirectory + @"\Infrastructure\Config\ServiceConfig.json"));
+            if (configPath == String.Empty)
+                ConfigPath = Environment.CurrentDirectory + @"\Infrastructure\Config\ServiceConfig.json";
+            else
+                ConfigPath = configPath;
+            Console.WriteLine(AppDomain.CurrentDomain.BaseDirectory);
+            var root=JsonSerializer.Deserialize<Root>(File.ReadAllText(ConfigPath));
             Cameras=root!.Cameras;
             FFmpegPath=root.FFmpegPath;
         }

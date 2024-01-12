@@ -3,7 +3,7 @@ using DvrService.Infrastructure.Interfaces;
 
 namespace DvrService.Infrastructure.Classes;
 
-public class RecordControl
+public class RecordControl : IRecordControl
 {
     private List<FileSystemWatcher>? WatchersList { get; set; }
     private Config? Config { get; init; }
@@ -11,9 +11,9 @@ public class RecordControl
     private List<IFileWatcher>? FilesWatcherList { get; init; }
     private List<Process>? FfmpegProcess { get; init; }
 
-    public RecordControl()
+    public RecordControl(string configPath)
     {
-        Config = new Config();
+        Config = new Config(configPath);
         FFmpegRecordList = new List<IFFmpegRecord>();
         FilesWatcherList = new List<IFileWatcher>();
         FfmpegProcess = new List<Process>();

@@ -5,7 +5,16 @@ namespace DvrService
 {
     public sealed class RecordControlWindowsService : BackgroundService
     {
-        private readonly RecordControl _recordControl = new();
+        private readonly List<string> _args;
+        private readonly IRecordControl _recordControl;
+        public RecordControlWindowsService(List<string> args)
+        {
+            _args = args;
+            if(_args.Any())
+                _recordControl = new RecordControl(_args[0]);
+            else
+                _recordControl = new RecordControl(String.Empty);
+        }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
