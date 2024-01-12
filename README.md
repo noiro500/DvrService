@@ -9,6 +9,7 @@
 3. Подготовить файл конфигурации ServiceConfig.json.
 4. Установить DvrService в качестве службы клмандой (от имени администратора): *sc create DvrService binPath= "{путь к DvrService.exe}\DvrService.exe {путь к файлу ServiceConfig.json}" start= delayed-auto*
 5. Если путь путь к файлу ServiceConfig.json не установлен, то служба ищет его по адресу *{каталог windows}\system32\Infrastructure\Config\ServiceConfig.json*
+   
 ## Расшифровка параметров в файле ServiceConfig.json
     FFmpegPath - путь к исполняемому файлу ffmpeg.exe
     Cameras - список камер с параметрами
@@ -18,4 +19,4 @@
         RecordTimeMin - время записи фрагмента видео в минутах
         NumberFilesInFolder - количество файлов в каталоге. Общее время записи видео расчитывается по формуде RecordTimeMin * NumberFilesInFolder
         RemoveOldFilesAfterMin - через какой промежуток времени в минурах запустится процедура удаления страрых файлов
-        RestartRecordAfterHours - через какой промежуток времени в часах перезапускать запись видео (необходимо при нестабильном потоке с камер). Значение 0 отключает перезапуск
+        RestartRecordAfterHours - через какой промежуток времени в часах перезапускать запись видео (необходимо при нестабильном потоке с камер). Значение 0 отключает перезапуск.
