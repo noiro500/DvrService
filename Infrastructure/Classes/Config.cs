@@ -34,7 +34,6 @@ namespace DvrService.Infrastructure.Classes
                 ConfigPath = Environment.CurrentDirectory + @"\Infrastructure\Config\ServiceConfig.json";
             else
                 ConfigPath = configPath;
-            Console.WriteLine(AppDomain.CurrentDomain.BaseDirectory);
             var root=JsonSerializer.Deserialize<Root>(File.ReadAllText(ConfigPath));
             Cameras=root!.Cameras;
             FFmpegPath=root.FFmpegPath;
