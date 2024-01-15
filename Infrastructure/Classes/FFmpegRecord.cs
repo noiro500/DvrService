@@ -34,7 +34,7 @@ public class FFmpegRecord : IFFmpegRecord
         if(FFmpegProcess is null)
             return;
         await FFmpegRecordStopAsync();
-        await Task.Delay(TimeSpan.FromSeconds(1));
+        await Task.Delay(TimeSpan.FromSeconds(2));
         await StartAsync();
     }
 
