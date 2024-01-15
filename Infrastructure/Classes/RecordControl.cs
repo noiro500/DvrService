@@ -15,7 +15,6 @@ public class RecordControl : IRecordControl
     public RecordControl(string configPath)
     {
         _errorFile = new StreamWriter($@"{AppDomain.CurrentDomain.BaseDirectory}\Error.txt", false);
-
         Config = new Config(configPath, _errorFile);
         FFmpegRecordList = new List<IFFmpegRecord>();
         FilesWatcherList = new List<IFileWatcher>();
@@ -110,5 +109,6 @@ public class RecordControl : IRecordControl
             foreach (var fileWatcher in FilesWatcherList)
                 await fileWatcher.FileWatcherStopAsync();
         }
+        _errorFile.Close();
     }
 }
