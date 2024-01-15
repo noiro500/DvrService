@@ -18,8 +18,8 @@ public class FileWatcher : IFileWatcher
         _camera = new Camera
         {
             PathRecord = pathRecord,
-            NumberFilesInFolder = numberFilesInFolder,
-            RemoveOldFilesAfterMin = removeOldFilesAfterMin
+            NumberFilesInFolder =int.Abs(numberFilesInFolder),
+            RemoveOldFilesAfterMin = double.Abs(removeOldFilesAfterMin)
         };
         _timer = new Timer(OnTimedEvent);
     }

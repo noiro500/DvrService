@@ -7,6 +7,7 @@ namespace DvrService
     {
         private readonly List<string> _args;
         private readonly IRecordControl _recordControl;
+        
         public RecordControlWindowsService(List<string> args)
         {
             _args = args;

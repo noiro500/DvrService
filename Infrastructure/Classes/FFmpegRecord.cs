@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using DvrService.Infrastructure.Interfaces;
 
 namespace DvrService.Infrastructure.Classes;
@@ -20,9 +21,9 @@ public class FFmpegRecord : IFFmpegRecord
             CameraName = cameraName!,
             CameraUrl = cameraUrl,
             PathRecord = pathRecord,
-            RecordTimeMin = recordTimeMin
+            RecordTimeMin = double.Abs(recordTimeMin)
         };
-        RestartRecordAfterHours = restartRecordAfterHours;
+        RestartRecordAfterHours = double.Abs(restartRecordAfterHours);
         _timer = new Timer(OnTimedEvent);
     }
 
@@ -39,7 +40,14 @@ public class FFmpegRecord : IFFmpegRecord
 
     public async Task<Process> StartAsync()
     {
-        _timer.Change(TimeSpan.FromHours(RestartRecordAfterHours), TimeSpan.FromHours(RestartRecordAfterHours));
+        try
+        {
+            _timer.Change(TimeSpan.FromHours(RestartRecordAfterHours), TimeSpan.FromHours(RestartRecordAfterHours));
+        }
+        catch
+        {
+            throw new ArgumentOutOfRangeException("The \"RestartRecordAfterHours\" parameter value must be greater than zero");
+        }
         await Task.Run(() =>
             {
                 try
@@ -56,10 +64,9 @@ public class FFmpegRecord : IFFmpegRecord
                     FFmpegProcess = Process.Start(startInfo);
                     Debug.WriteLine(FFmpegProcess!.Id + " " + FFmpegProcess.ProcessName + $"Task ID= {Task.CurrentId}");
                 }
-                catch (Exception e)
+                finally
                 {
                     Debug.WriteLine("Не удалось запустить процесс");
-                    Debug.WriteLine(e.Message);
                 }
             });
         return FFmpegProcess;
