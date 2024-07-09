@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace DvrService.Infrastructure.Classes
 {
@@ -8,7 +9,8 @@ namespace DvrService.Infrastructure.Classes
     internal record Root
     {
         public string FFmpegPath { get; set; }= String.Empty;
-        public List<Camera> Cameras { get; set; } = new();
+        public double CheckOfRecordFilesTimeMin { get; set; }
+        public List<Camera> Cameras { get; set; } = [];
 
     }
 
@@ -29,6 +31,7 @@ namespace DvrService.Infrastructure.Classes
         public List<Camera> Cameras { get; set; }
         public string FFmpegPath { get; set; }
         private string ConfigPath { get; set; }
+        public double CheckOfRecordFilesTimeMin { get; set; }
 
         public Config(string configPath, StreamWriter errorFile)
         {
@@ -38,19 +41,23 @@ namespace DvrService.Infrastructure.Classes
                     ConfigPath = Environment.CurrentDirectory + @"\Infrastructure\Config\ServiceConfig.json";
                 else
                     ConfigPath = AppDomain.CurrentDomain.BaseDirectory+"\\"+configPath;
-                var root = JsonSerializer.Deserialize<Root>(File.ReadAllText(ConfigPath));
+                var root = JsonSerializer.Deserialize<Root>(File.ReadAllText(ConfigPath), SourceGenerationContext.Default.Root);
                 Cameras = root!.Cameras;
                 FFmpegPath = root.FFmpegPath;
-                var t = Cameras.Select(x => x.PathRecord).Distinct().Count();
+                CheckOfRecordFilesTimeMin=root.CheckOfRecordFilesTimeMin;
             }
             catch (Exception ex)
             {
-                errorFile.WriteLine("Error: Configuration file not found! Service not start.");
+                errorFile.WriteLine($"Error:\n{ex.Message}");
                 errorFile.Close();
                 Environment.Exit(1);
             }
         }
     }
+    [JsonSourceGenerationOptions(WriteIndented = true)]
+    [JsonSerializable(typeof(Root))]
+    internal partial class SourceGenerationContext  : JsonSerializerContext    
+    {}
 
 }
 

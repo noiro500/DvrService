@@ -69,7 +69,7 @@ public class FFmpegRecord : IFFmpegRecord
                     Debug.WriteLine("Не удалось запустить процесс");
                 }
             });
-        return FFmpegProcess;
+        return FFmpegProcess!;
     }
 
     public async Task FFmpegRecordStopAsync()

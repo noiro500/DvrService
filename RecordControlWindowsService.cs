@@ -20,13 +20,14 @@ namespace DvrService
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             await Task.Delay(1000, stoppingToken);
-            await _recordControl.RecordControlStartAsync();
+await _recordControl.RecordControlStartAsync();
         }
 
         public override async Task StopAsync(CancellationToken cancellationToken)
         {
             Debug.WriteLine("Сработал метод StopAsync из класса RecordControlWindowsService");
             await _recordControl.RecordControlStopAsync();
+            await Task.Delay(3000, cancellationToken);
             await base.StopAsync(cancellationToken);
         }
     }

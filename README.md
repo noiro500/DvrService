@@ -12,6 +12,7 @@
    
 ## Расшифровка параметров в файле ServiceConfig.json
     FFmpegPath - путь к исполняемому файлу ffmpeg.exe
+    CheckOfRecordFilesTimeMin - время в минутах, через которое запускается процедура проверки файлов в папке (в случае сбоя ffmpeg перезапускает его)
     Cameras - список камер с параметрами
         CameraName - описание камеры
         CameraUrl - путь до rtsp потока IP-камеры

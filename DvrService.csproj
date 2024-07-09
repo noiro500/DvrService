@@ -1,17 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>dotnet-DvrService-52394dbc-0ce8-4ad3-9a7e-17206c7c13ac</UserSecretsId>
     <PlatformTarget>AnyCPU</PlatformTarget>
-	  <PublishAot>true</PublishAot>
-  </PropertyGroup>
+    <PublishAot>True</PublishAot>
+    
+</PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="7.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="8.0.0" />
+    <PackageReference Include="runtime.win-x64.Microsoft.DotNet.ILCompiler" Version="8.0.7" />
   </ItemGroup>
 
   <ItemGroup>
