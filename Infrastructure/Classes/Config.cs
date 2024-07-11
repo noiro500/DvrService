@@ -44,7 +44,7 @@ namespace DvrService.Infrastructure.Classes
                 var root = JsonSerializer.Deserialize<Root>(File.ReadAllText(ConfigPath), SourceGenerationContext.Default.Root);
                 Cameras = root!.Cameras;
                 FFmpegPath = root.FFmpegPath;
-                CheckOfRecordFilesTimeMin=root.CheckOfRecordFilesTimeMin;
+                CheckOfRecordFilesTimeMin=double.Abs(root.CheckOfRecordFilesTimeMin);
             }
             catch (Exception ex)
             {

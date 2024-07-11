@@ -13,7 +13,6 @@ public class RecordControl : IRecordControl
     private List<Process>? FfmpegProcess { get; init; }
     private readonly StreamWriter _errorFile;
     private readonly Timer _timer;
-    private double PeriodOfChangingFiles { get; set; }
 
     public RecordControl(string configPath)
     {

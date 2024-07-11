@@ -10,7 +10,7 @@ public class FFmpegRecord : IFFmpegRecord
     private readonly string PathFFmpeg;
     private readonly Camera _camera;
     private Process? FFmpegProcess { get; set; }
-    private double RestartRecordAfterHours { get; set; }
+    private TimeSpan RestartRecordAfterHours { get; set; }
 
     public FFmpegRecord(string pathFFmpeg, string? cameraName, string cameraUrl, string pathRecord, double recordTimeMin, double restartRecordAfterHours)
     {
@@ -23,7 +23,10 @@ public class FFmpegRecord : IFFmpegRecord
             PathRecord = pathRecord,
             RecordTimeMin = double.Abs(recordTimeMin)
         };
-        RestartRecordAfterHours = double.Abs(restartRecordAfterHours);
+        if (restartRecordAfterHours <= 0)
+            RestartRecordAfterHours =new TimeSpan(Timeout.Infinite);
+        else
+            RestartRecordAfterHours = TimeSpan.FromHours(restartRecordAfterHours);  
         _timer = new Timer(OnTimedEvent);
     }
 
@@ -42,11 +45,11 @@ public class FFmpegRecord : IFFmpegRecord
     {
         try
         {
-            _timer.Change(TimeSpan.FromHours(RestartRecordAfterHours), TimeSpan.FromHours(RestartRecordAfterHours));
+            _timer.Change(RestartRecordAfterHours,RestartRecordAfterHours );
         }
-        catch
+        catch (ArgumentOutOfRangeException ex)
         {
-            throw new ArgumentOutOfRangeException("The \"RestartRecordAfterHours\" parameter value must be greater than zero");
+            throw new ArgumentOutOfRangeException($"Error:\n {ex.Message}");
         }
         await Task.Run(() =>
             {
