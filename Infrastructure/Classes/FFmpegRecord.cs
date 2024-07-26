@@ -22,12 +22,11 @@ public class FFmpegRecord : IFFmpegRecord
             PathRecord = pathRecord,
             RecordTimeMin = int.Abs(recordTimeMin)
         };
-        JobManager.AddJob(async () => await RestartFFmpegAsync(), (s) => s.ToRunEvery(restartRecordAfterHours).Seconds());
+        JobManager.AddJob(async () => await RestartFFmpegAsync(), (s) => s.ToRunEvery(restartRecordAfterHours).Hours());
     }
 
     public async Task<Process> StartFfmpegRecordAsync()
     {
-        //JobManager.AddJob(async () => await RestartFFmpegAsync(), (s) => s.WithName("RestartFFmpeg").ToRunEvery(_camera.RestartRecordAfterHours).Seconds());
         await Task.Run(() =>
             {
                 try
