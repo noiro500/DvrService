@@ -18,7 +18,7 @@ public class FileWatcher : IFileWatcher
             NumberFilesInFolder =int.Abs(numberFilesInFolder),
             RemoveOldFilesAfterMin = int.Abs(removeOldFilesAfterMin)
         };
-        JobManager.AddJob(DeleteOldFiles, (s) => s.WithName("FileWatcherControl").ToRunEvery(_camera.RemoveOldFilesAfterMin).Minutes());
+        JobManager.AddJob(DeleteOldFiles, (s) => s.WithName("FileWatcherControl").ToRunNow().AndEvery(_camera.RemoveOldFilesAfterMin).Minutes());
 
     }
 
