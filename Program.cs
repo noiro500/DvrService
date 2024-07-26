@@ -1,3 +1,4 @@
+global using FluentScheduler;
 using DvrService;
 using DvrService.Infrastructure.Classes;
 using Microsoft.Extensions.Logging.Configuration;

@@ -6,13 +6,12 @@ namespace DvrService.Infrastructure.Classes;
 
 public class FFmpegRecord : IFFmpegRecord
 {
-    private readonly Timer _timer;
+    //private readonly Timer _timer;
     private readonly string PathFFmpeg;
     private readonly Camera _camera;
     private Process? FFmpegProcess { get; set; }
-    private TimeSpan RestartRecordAfterHours { get; set; }
 
-    public FFmpegRecord(string pathFFmpeg, string? cameraName, string cameraUrl, string pathRecord, double recordTimeMin, double restartRecordAfterHours)
+    public FFmpegRecord(string pathFFmpeg, string? cameraName, string cameraUrl, string pathRecord, int recordTimeMin, int restartRecordAfterHours)
     {
         PathFFmpeg = pathFFmpeg;
         Debug.WriteLine(cameraName);
@@ -21,36 +20,14 @@ public class FFmpegRecord : IFFmpegRecord
             CameraName = cameraName!,
             CameraUrl = cameraUrl,
             PathRecord = pathRecord,
-            RecordTimeMin = double.Abs(recordTimeMin)
+            RecordTimeMin = int.Abs(recordTimeMin)
         };
-        if (restartRecordAfterHours <= 0)
-            RestartRecordAfterHours =new TimeSpan(Timeout.Infinite);
-        else
-            RestartRecordAfterHours = TimeSpan.FromHours(restartRecordAfterHours);  
-        _timer = new Timer(OnTimedEvent);
+        JobManager.AddJob(async () => await RestartFFmpegAsync(), (s) => s.ToRunEvery(restartRecordAfterHours).Seconds());
     }
 
-    private async void OnTimedEvent(object? sender)
+    public async Task<Process> StartFfmpegRecordAsync()
     {
-        Debug.WriteLine("Перезапуск процессов ffmpeg.exe");
-        _timer.Change(Timeout.Infinite, Timeout.Infinite);
-        if(FFmpegProcess is null)
-            return;
-        await FFmpegRecordStopAsync();
-        await Task.Delay(TimeSpan.FromSeconds(2));
-        await StartAsync();
-    }
-
-    public async Task<Process> StartAsync()
-    {
-        try
-        {
-            _timer.Change(RestartRecordAfterHours,RestartRecordAfterHours );
-        }
-        catch (ArgumentOutOfRangeException ex)
-        {
-            throw new ArgumentOutOfRangeException($"Error:\n {ex.Message}");
-        }
+        //JobManager.AddJob(async () => await RestartFFmpegAsync(), (s) => s.WithName("RestartFFmpeg").ToRunEvery(_camera.RestartRecordAfterHours).Seconds());
         await Task.Run(() =>
             {
                 try
@@ -65,6 +42,7 @@ public class FFmpegRecord : IFFmpegRecord
                         RedirectStandardInput = true
                     };
                     FFmpegProcess = Process.Start(startInfo);
+                    Properties.FFmpegProcessBag.Add(FFmpegProcess!);
                     Debug.WriteLine(FFmpegProcess!.Id + " " + FFmpegProcess.ProcessName + $"Task ID= {Task.CurrentId}");
                 }
                 finally
@@ -78,8 +56,21 @@ public class FFmpegRecord : IFFmpegRecord
     public async Task FFmpegRecordStopAsync()
     {
         Debug.WriteLine($"Завершение процесса {FFmpegProcess!.Id}");
+        Process killProcess;
         FFmpegProcess.Kill();
+        //SchedulesProperties.FFmpegProcessBag.TryTake(out killProcess);
         await FFmpegProcess.WaitForExitAsync();
         Debug.WriteLine($"FFmpegRecord остановлен");
+    }
+
+    private async Task RestartFFmpegAsync()
+    {
+        Console.WriteLine("Перезапуск процессов ffmpeg.exe");
+        if (FFmpegProcess is null)
+            return;
+        await FFmpegRecordStopAsync();
+        await Task.Delay(TimeSpan.FromSeconds(2));
+        await StartFfmpegRecordAsync();
+
     }
 }

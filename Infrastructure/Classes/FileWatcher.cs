@@ -6,22 +6,20 @@ namespace DvrService.Infrastructure.Classes;
 
 public class FileWatcher : IFileWatcher
 {
-
-    private readonly Timer _timer;
-
     private readonly Camera _camera;
     private FileInfo[]? Files { get; set; }
 
-    public FileWatcher(string pathRecord, int numberFilesInFolder, double removeOldFilesAfterMin)
+    public FileWatcher(string pathRecord, int numberFilesInFolder, int removeOldFilesAfterMin)
     {
         Debug.WriteLine("Конструктор удаления файлов");
         _camera = new Camera
         {
             PathRecord = pathRecord,
             NumberFilesInFolder =int.Abs(numberFilesInFolder),
-            RemoveOldFilesAfterMin = double.Abs(removeOldFilesAfterMin)
+            RemoveOldFilesAfterMin = int.Abs(removeOldFilesAfterMin)
         };
-        _timer = new Timer(OnTimedEvent);
+        JobManager.AddJob(DeleteOldFiles, (s) => s.WithName("FileWatcherControl").ToRunEvery(_camera.RemoveOldFilesAfterMin).Minutes());
+
     }
 
     public Task FileWatcherStartAsync()
@@ -29,21 +27,19 @@ public class FileWatcher : IFileWatcher
         return Task.Run(() =>
         {
             Debug.WriteLine($"FileWatcher TaskID={Task.CurrentId}");
-            _timer.Change(TimeSpan.FromSeconds(10.0), TimeSpan.FromMinutes(_camera.RemoveOldFilesAfterMin));
         });
     }
 
-    public async Task FileWatcherStopAsync()
+    public Task FileWatcherStopAsync()
     {
-        _timer.Change(Timeout.Infinite, Timeout.Infinite);
-        await _timer.DisposeAsync();
+        JobManager.RemoveJob("FileWatcherControl");
         Debug.WriteLine($"FileWatcher остановлен");
-
+return Task.CompletedTask;
     }
 
-    private void OnTimedEvent(object? sender)
+    private void DeleteOldFiles()
     {
-        Debug.WriteLine("Сработал таймер, вызван OnTimedEvent");
+        Console.WriteLine("Сработал таймер, вызван DeleteOldFiles");
         Files = new DirectoryInfo(_camera.PathRecord).GetFiles();
         if (Files.Length >= _camera.NumberFilesInFolder)
         {

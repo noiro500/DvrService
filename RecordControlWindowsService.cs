@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using DvrService.Infrastructure.Classes;
+using FluentScheduler;
 
 namespace DvrService
 {
@@ -21,12 +22,14 @@ namespace DvrService
         {
             await Task.Delay(1000, stoppingToken);
 await _recordControl.RecordControlStartAsync();
+JobManager.Initialize();
         }
 
         public override async Task StopAsync(CancellationToken cancellationToken)
         {
             Debug.WriteLine("Сработал метод StopAsync из класса RecordControlWindowsService");
             await _recordControl.RecordControlStopAsync();
+Properties.errorFiles.Close();
             await Task.Delay(3000, cancellationToken);
             await base.StopAsync(cancellationToken);
         }

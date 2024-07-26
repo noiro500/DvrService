@@ -9,7 +9,7 @@ namespace DvrService.Infrastructure.Classes
     internal record Root
     {
         public string FFmpegPath { get; set; }= String.Empty;
-        public double CheckOfRecordFilesTimeMin { get; set; }
+        public int CheckOfRecordFilesTimeMin { get; set; }
         public List<Camera> Cameras { get; set; } = [];
 
     }
@@ -19,10 +19,10 @@ namespace DvrService.Infrastructure.Classes
         public string CameraName { get; set; } = String.Empty;
         public string CameraUrl { get; set; } = String.Empty;
         public string PathRecord { get; set; } = String.Empty;
-        public double RecordTimeMin { get; set; }
+        public int RecordTimeMin { get; set; }
         public int NumberFilesInFolder { get; set; }
-        public double RemoveOldFilesAfterMin { get; set; }
-        public double RestartRecordAfterHours { get; set; }
+        public int RemoveOldFilesAfterMin { get; set; }
+        public int RestartRecordAfterHours { get; set; }
 
     }
 
@@ -31,9 +31,9 @@ namespace DvrService.Infrastructure.Classes
         public List<Camera> Cameras { get; set; }
         public string FFmpegPath { get; set; }
         private string ConfigPath { get; set; }
-        public double CheckOfRecordFilesTimeMin { get; set; }
+        public int CheckOfRecordFilesTimeMin { get; set; }
 
-        public Config(string configPath, StreamWriter errorFile)
+        public Config(string configPath/*, StreamWriter errorFile*/)
         {
             try
             {
@@ -44,12 +44,12 @@ namespace DvrService.Infrastructure.Classes
                 var root = JsonSerializer.Deserialize<Root>(File.ReadAllText(ConfigPath), SourceGenerationContext.Default.Root);
                 Cameras = root!.Cameras;
                 FFmpegPath = root.FFmpegPath;
-                CheckOfRecordFilesTimeMin=double.Abs(root.CheckOfRecordFilesTimeMin);
+                CheckOfRecordFilesTimeMin=int.Abs(root.CheckOfRecordFilesTimeMin);
             }
             catch (Exception ex)
             {
-                errorFile.WriteLine($"Error:\n{ex.Message}");
-                errorFile.Close();
+                Properties.errorFiles.WriteLine($"Error:\n{ex.Message}\nОшибка в конфигурационном файле ServiceConfig.json");
+                Properties.errorFiles.Close();
                 Environment.Exit(1);
             }
         }
