@@ -14,25 +14,15 @@ public class RecordControl : IRecordControl
 
     public RecordControl(string configPath)
     {
-        //_errorFile = new StreamWriter($@"{AppDomain.CurrentDomain.BaseDirectory}\Error.txt", false);
         Config = new Config(configPath/*, _errorFile*/);
         FFmpegRecordList = new();
         FilesWatcherList = new();
         FfmpegProcess = new();
-        ///// <summary>
-        ///// Таймер проверки работоспособности программы.
-        ///// </summary>
-        ///// <remarks>
-        ///// Если время, прошедшее между созданием файла и текущим временем больше <c>RecordTimeMin</c>, 
-        ///// то вызывается метод <see cref="RecordControlStopAsync"/> и затем перезапускается <see cref="RecordControlStartAsync"/>.
-        ///// </remarks>
-        //_timer = new Timer(OnTimedEvent);
         InitializationRecordControl();
     }
 
     //private async void OnTimedEvent(object? state)
     //{
-    //    _timer.Change(Timeout.Infinite, Timeout.Infinite);
     //    List<bool> flags = new();
     //    var format = "yyyy-MM-dd_HH-mm-ss";
     //    foreach (var camera in Config!.Cameras)
@@ -48,12 +38,10 @@ public class RecordControl : IRecordControl
     //        await Task.Delay(5000);
     //        await RecordControlStartAsync();
     //    }
-    //    _timer.Change(TimeSpan.FromSeconds(10.0), TimeSpan.FromMinutes(Config.CheckOfRecordFilesTimeMin));
-
     //}
 
     private void InitializationRecordControl()
-    {
+    { 
         try
         {
             if (Config != null && Config.Cameras.Select(x => x.PathRecord).Distinct().Count() < Config.Cameras.Count)

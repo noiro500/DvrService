@@ -22,7 +22,8 @@ public class FFmpegRecord : IFFmpegRecord
             PathRecord = pathRecord,
             RecordTimeMin = int.Abs(recordTimeMin)
         };
-        JobManager.AddJob(async () => await RestartFFmpegAsync(), (s) => s.ToRunEvery(restartRecordAfterHours).Hours());
+        if (restartRecordAfterHours != 0)
+            JobManager.AddJob(async () => await RestartFFmpegAsync(), (s) => s.ToRunEvery(restartRecordAfterHours).Hours());
     }
 
     public async Task<Process> StartFfmpegRecordAsync()
