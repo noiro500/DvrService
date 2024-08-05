@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace DvrService.Infrastructure.Classes
@@ -8,9 +6,10 @@ namespace DvrService.Infrastructure.Classes
 
     internal record Root
     {
-        public string FFmpegPath { get; set; }= String.Empty;
+        public string FFmpegPath { get; set; } = String.Empty;
         public int CheckOfRecordFilesTimeMin { get; set; }
         public List<Camera> Cameras { get; set; } = [];
+        public int RestartRecordAfterHours { get; set; }
 
     }
 
@@ -22,7 +21,7 @@ namespace DvrService.Infrastructure.Classes
         public int RecordTimeMin { get; set; }
         public int NumberFilesInFolder { get; set; }
         public int RemoveOldFilesAfterMin { get; set; }
-        public int RestartRecordAfterHours { get; set; }
+        //public int RestartRecordAfterHours { get; set; }
 
     }
 
@@ -32,6 +31,7 @@ namespace DvrService.Infrastructure.Classes
         public string FFmpegPath { get; set; }
         private string ConfigPath { get; set; }
         public int CheckOfRecordFilesTimeMin { get; set; }
+        public int RestartRecordAfterHours { get; set; }
 
         public Config(string configPath/*, StreamWriter errorFile*/)
         {
@@ -40,11 +40,12 @@ namespace DvrService.Infrastructure.Classes
                 if (configPath == String.Empty)
                     ConfigPath = Environment.CurrentDirectory + @"\Infrastructure\Config\ServiceConfig.json";
                 else
-                    ConfigPath = AppDomain.CurrentDomain.BaseDirectory+"\\"+configPath;
+                    ConfigPath = AppDomain.CurrentDomain.BaseDirectory + "\\" + configPath;
                 var root = JsonSerializer.Deserialize<Root>(File.ReadAllText(ConfigPath), SourceGenerationContext.Default.Root);
                 Cameras = root!.Cameras;
                 FFmpegPath = root.FFmpegPath;
-                CheckOfRecordFilesTimeMin=int.Abs(root.CheckOfRecordFilesTimeMin);
+                CheckOfRecordFilesTimeMin = int.Abs(root.CheckOfRecordFilesTimeMin);
+                RestartRecordAfterHours = int.Abs(root.RestartRecordAfterHours);
             }
             catch (Exception ex)
             {
@@ -56,8 +57,8 @@ namespace DvrService.Infrastructure.Classes
     }
     [JsonSourceGenerationOptions(WriteIndented = true)]
     [JsonSerializable(typeof(Root))]
-    internal partial class SourceGenerationContext  : JsonSerializerContext    
-    {}
+    internal partial class SourceGenerationContext : JsonSerializerContext
+    { }
 
 }
 

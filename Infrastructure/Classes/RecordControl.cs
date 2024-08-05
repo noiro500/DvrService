@@ -1,6 +1,6 @@
-﻿using System.Diagnostics;
+﻿using DvrService.Infrastructure.Interfaces;
+using System.Diagnostics;
 using System.Globalization;
-using DvrService.Infrastructure.Interfaces;
 
 namespace DvrService.Infrastructure.Classes;
 
@@ -11,6 +11,7 @@ public class RecordControl : IRecordControl
     private List<IFFmpegRecord>? FFmpegRecordList { get; init; }
     private List<IFileWatcher>? FilesWatcherList { get; init; }
     private List<Process>? FfmpegProcess { get; init; }
+    private readonly SemaphoreSlim _semaphore;
 
     public RecordControl(string configPath)
     {
@@ -18,30 +19,63 @@ public class RecordControl : IRecordControl
         FFmpegRecordList = new();
         FilesWatcherList = new();
         FfmpegProcess = new();
+        _semaphore = new SemaphoreSlim(1, 1);
         InitializationRecordControl();
+        if (Config.CheckOfRecordFilesTimeMin != 0)
+            JobManager.AddJob(async () => await FFmpegProcessControlAsync(), (s) => s.WithName("FFmpegProcessControl").ToRunEvery(Config.CheckOfRecordFilesTimeMin).Minutes());
+
+        if (Config.RestartRecordAfterHours != 0)
+#if DEBUG
+            JobManager.AddJob(async () => await RestartRecorsAsync(), (s) => s.WithName("RestartRecordsAsync").ToRunEvery(Config.RestartRecordAfterHours).Seconds());
+#else
+            JobManager.AddJob(async () => await RestartRecorsAsync(), (s) => s.WithName("RestartRecordsAsync").ToRunEvery(Config.RestartRecordAfterHours).Hours());  
+#endif
     }
 
-    //private async void OnTimedEvent(object? state)
-    //{
-    //    List<bool> flags = new();
-    //    var format = "yyyy-MM-dd_HH-mm-ss";
-    //    foreach (var camera in Config!.Cameras)
-    //    {
-    //        var files = new DirectoryInfo(camera.PathRecord).GetFiles();
-    //        var readFileDateTime = DateTime.ParseExact(files.OrderBy(f => f.Name).TakeLast(1).ElementAt(0).Name.Substring(0, 19), format, CultureInfo.InvariantCulture);
-    //        if (DateTime.Now - readFileDateTime > TimeSpan.FromMinutes(camera.RecordTimeMin))
-    //            flags.Add(false);
-    //    }
-    //    if (flags.Any(x => x == false))
-    //    {
-    //        await RecordControlStopAsync();
-    //        await Task.Delay(5000);
-    //        await RecordControlStartAsync();
-    //    }
-    //}
+    private async Task FFmpegProcessControlAsync()
+    {
+        List<bool> flags = new();
+        var format = "yyyy-MM-dd_HH-mm-ss";
+        var schedule = JobManager.GetSchedule("FFmpegProcessControl");
+        await _semaphore.WaitAsync();
+#if DEBUG
+        Console.WriteLine("Вход в метод FFmpegProcessControlAsync");
+#endif
+        try
+        {
+            foreach (var camera in Config!.Cameras)
+            {
+                var files = new DirectoryInfo(camera.PathRecord).GetFiles();
+                var readFileDateTime =
+                    DateTime.ParseExact(files.OrderBy(f => f.Name).TakeLast(1).ElementAt(0).Name.Substring(0, 19),
+                        format, CultureInfo.InvariantCulture);
+                if (DateTime.Now - readFileDateTime > TimeSpan.FromMinutes(camera.RecordTimeMin))
+                    flags.Add(false);
+            }
+
+            if (flags.Any(x => x == false))
+            {
+                await RecordControlStopAsync();
+                await Task.Delay(3000);
+                await RecordControlStartAsync();
+#if DEBUG
+                Console.WriteLine("Перезапуск ffmpeg произведен из FFmpegProcessControlAsync");
+#endif
+            }
+            _semaphore.Release();
+        }
+        catch (Exception ex)
+        {
+#if DEBUG
+            Console.WriteLine("Сработало исключение в FFmpegProcessControlAsync");
+#endif
+            await Properties.errorFiles.WriteLineAsync($"Error: {ex.Message}! ошибка в методе FFmpegProcessControlAsync");
+            _semaphore.Release();
+        }
+    }
 
     private void InitializationRecordControl()
-    { 
+    {
         try
         {
             if (Config != null && Config.Cameras.Select(x => x.PathRecord).Distinct().Count() < Config.Cameras.Count)
@@ -50,7 +84,7 @@ public class RecordControl : IRecordControl
             {
                 foreach (var cam in Config.Cameras)
                 {
-                    FFmpegRecordList!.Add(new FFmpegRecord(Config.FFmpegPath, cam.CameraName, cam.CameraUrl, cam.PathRecord, cam.RecordTimeMin, cam.RestartRecordAfterHours));
+                    FFmpegRecordList!.Add(new FFmpegRecord(Config.FFmpegPath, cam.CameraName, cam.CameraUrl, cam.PathRecord, cam.RecordTimeMin, Config.RestartRecordAfterHours));
                     FilesWatcherList!.Add(new FileWatcher(cam.PathRecord, cam.NumberFilesInFolder, cam.RemoveOldFilesAfterMin));
                 }
             }
@@ -62,7 +96,7 @@ public class RecordControl : IRecordControl
         catch (Exception ex)
         {
             Debug.WriteLine("Ошибка чтения файла конфигурации");
-            Properties.errorFiles.WriteLine($"Error: {ex.Message}! Service not start.");
+            Properties.errorFiles.WriteLineAsync($"Error: {ex.Message}! Service not start.");
             Properties.errorFiles.Close();
             Environment.Exit(1);
         }
@@ -126,8 +160,27 @@ public class RecordControl : IRecordControl
             foreach (var fileWatcher in FilesWatcherList)
                 await fileWatcher.FileWatcherStopAsync();
         }
-        JobManager.RemoveAllJobs();
-        JobManager.Stop();
         Properties.errorFiles.Close();
+    }
+
+    private async Task RestartRecorsAsync()
+    {
+#if DEBUG
+        Console.WriteLine("Перезапуск процессов ffmpeg.exe");
+#endif
+        await _semaphore.WaitAsync();
+        try
+        {
+            await RecordControlStopAsync();
+            await Task.Delay(2000);
+            await RecordControlStartAsync();
+            _semaphore.Release();
+        }
+        catch (Exception e)
+        {
+            await Properties.errorFiles.WriteLineAsync($"Error: {e.Message}!");
+            _semaphore.Release();
+        }
+
     }
 }

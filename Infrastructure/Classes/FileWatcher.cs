@@ -1,5 +1,5 @@
-﻿using System.Diagnostics;
-using DvrService.Infrastructure.Interfaces;
+﻿using DvrService.Infrastructure.Interfaces;
+using System.Diagnostics;
 
 namespace DvrService.Infrastructure.Classes;
 
@@ -15,11 +15,10 @@ public class FileWatcher : IFileWatcher
         _camera = new Camera
         {
             PathRecord = pathRecord,
-            NumberFilesInFolder =int.Abs(numberFilesInFolder),
+            NumberFilesInFolder = int.Abs(numberFilesInFolder),
             RemoveOldFilesAfterMin = int.Abs(removeOldFilesAfterMin)
         };
         JobManager.AddJob(DeleteOldFiles, (s) => s.WithName("FileWatcherControl").ToRunNow().AndEvery(_camera.RemoveOldFilesAfterMin).Minutes());
-
     }
 
     public Task FileWatcherStartAsync()
@@ -32,14 +31,16 @@ public class FileWatcher : IFileWatcher
 
     public Task FileWatcherStopAsync()
     {
-        JobManager.RemoveJob("FileWatcherControl");
         Debug.WriteLine($"FileWatcher остановлен");
-return Task.CompletedTask;
+        return Task.CompletedTask;
     }
 
     private void DeleteOldFiles()
     {
+#if DEBUG
         Console.WriteLine("Сработал таймер, вызван DeleteOldFiles");
+
+#endif
         Files = new DirectoryInfo(_camera.PathRecord).GetFiles();
         if (Files.Length >= _camera.NumberFilesInFolder)
         {
