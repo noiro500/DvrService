@@ -53,11 +53,16 @@ public class RecordControl : IRecordControl
                     flags.Add(false);
             }
 
+            var processFFmpeg = Process.GetProcessesByName("ffmpeg");
+            if (processFFmpeg.Length < Config.Cameras.Count)
+                flags.Add(false);
+
             if (flags.Any(x => x == false))
             {
                 await RecordControlStopAsync();
                 await Task.Delay(3000);
                 await RecordControlStartAsync();
+                flags.Clear();
 #if DEBUG
                 Console.WriteLine("Перезапуск ffmpeg произведен из FFmpegProcessControlAsync");
 #endif
