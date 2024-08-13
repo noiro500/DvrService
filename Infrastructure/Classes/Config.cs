@@ -18,6 +18,8 @@ namespace DvrService.Infrastructure.Classes
         public string CameraName { get; set; } = String.Empty;
         public string CameraUrl { get; set; } = String.Empty;
         public string PathRecord { get; set; } = String.Empty;
+        public bool EncodeRecord { get; set; }
+        public string EncodeQuality { get; set; } = String.Empty;
         public int RecordTimeMin { get; set; }
         public int NumberFilesInFolder { get; set; }
         public int RemoveOldFilesAfterMin { get; set; }
@@ -33,7 +35,7 @@ namespace DvrService.Infrastructure.Classes
         public int CheckOfRecordFilesTimeMin { get; set; }
         public int RestartRecordAfterHours { get; set; }
 
-        public Config(string configPath/*, StreamWriter errorFile*/)
+        public Config(string configPath)
         {
             try
             {
