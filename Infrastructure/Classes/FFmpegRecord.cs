@@ -68,7 +68,6 @@ public class FFmpegRecord : IFFmpegRecord
 #if DEBUG
         Console.WriteLine($"Завершение процесса {FFmpegProcess!.Id}");
 #endif
-        //FFmpegProcess.Kill();
         if (FFmpegProcess != null && !FFmpegProcess.HasExited)
         {
             using (var streamWriter = FFmpegProcess.StandardInput)
