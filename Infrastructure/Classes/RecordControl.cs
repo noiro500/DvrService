@@ -15,7 +15,7 @@ public class RecordControl : IRecordControl
 
     public RecordControl(string configPath)
     {
-        Config = new Config(configPath);
+        Config = new Config(configPath/*, _errorFile*/);
         FFmpegRecordList = new();
         FilesWatcherList = new();
         FfmpegProcess = new();
@@ -89,7 +89,7 @@ public class RecordControl : IRecordControl
             {
                 foreach (var cam in Config.Cameras)
                 {
-                    FFmpegRecordList!.Add(new FFmpegRecord(Config.FFmpegPath, cam.CameraName, cam.CameraUrl, cam.PathRecord, cam.EncodeRecord, cam.EncodeQuality, cam.RecordTimeMin, Config.RestartRecordAfterHours));
+                    FFmpegRecordList!.Add(new FFmpegRecord(Config.FFmpegPath, cam.CameraName, cam.CameraUrl, cam.PathRecord, cam.RecordTimeMin, Config.RestartRecordAfterHours));
                     FilesWatcherList!.Add(new FileWatcher(cam.PathRecord, cam.NumberFilesInFolder, cam.RemoveOldFilesAfterMin));
                 }
             }
