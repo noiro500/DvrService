@@ -10,7 +10,7 @@ public class FFmpegRecord : IFFmpegRecord
     private readonly Camera _camera;
     private Process? FFmpegProcess { get; set; }
 
-    public FFmpegRecord(string pathFFmpeg, string? cameraName, string cameraUrl, string pathRecord, bool encoderRecord, string encoderQuality, int recordTimeMin, int restartRecordAfterHours)
+    public FFmpegRecord(string pathFFmpeg, string? cameraName, string cameraUrl, string pathRecord, int recordTimeMin, int restartRecordAfterHours)
     {
         PathFFmpeg = pathFFmpeg;
         Debug.WriteLine(cameraName);
@@ -19,8 +19,6 @@ public class FFmpegRecord : IFFmpegRecord
             CameraName = cameraName!,
             CameraUrl = cameraUrl,
             PathRecord = pathRecord,
-            EncodeRecord = encoderRecord,
-            EncodeQuality = encoderQuality,
             RecordTimeMin = int.Abs(recordTimeMin)
         };
     }
@@ -33,21 +31,11 @@ public class FFmpegRecord : IFFmpegRecord
                 try
                 {
                     using Process process = new();
-                    string fileName = PathFFmpeg + "ffmpeg.exe";
-                    string arguments;
-                    if (_camera.EncodeRecord)
-                        arguments =
-                            $" -hide_banner -y -loglevel fatal -rtsp_transport tcp -use_wallclock_as_timestamps 1 -i \"{_camera.CameraUrl}\" -c:v libx264 -preset {_camera.EncodeQuality} -crf 20 -strict -2  -f segment -reset_timestamps 1 -segment_time {_camera.RecordTimeMin * 60} -segment_format mkv -segment_atclocktime 1 -strftime 1  \"{_camera.PathRecord}\\%Y-%m-%d_%H-%M-%S.mkv\"";
-                    else
-                    {
-                        arguments =
-                            $" -hide_banner -y -loglevel fatal -rtsp_transport tcp -use_wallclock_as_timestamps 1 -i \"{_camera.CameraUrl}\" -vcodec copy  -f segment -reset_timestamps 1 -segment_time {_camera.RecordTimeMin * 60} -segment_format mkv -segment_atclocktime 1 -strftime 1  \"{_camera.PathRecord}\\%Y-%m-%d_%H-%M-%S.mkv\"";
-
-                    }
                     ProcessStartInfo startInfo = new()
                     {
-                        FileName = fileName,
-                        Arguments = arguments,
+                        FileName = PathFFmpeg + "ffmpeg.exe",
+                        Arguments =
+                            $" -hide_banner -y -loglevel fatal -rtsp_transport tcp -use_wallclock_as_timestamps 1 -i \"{_camera.CameraUrl}\" -c copy  -f segment -reset_timestamps 1 -segment_time {_camera.RecordTimeMin * 60} -segment_format mkv -segment_atclocktime 1 -strftime 1  \"{_camera.PathRecord}\\%Y-%m-%d_%H-%M-%S.mkv\"",
                         UseShellExecute = false,
                         RedirectStandardInput = true
                     };
