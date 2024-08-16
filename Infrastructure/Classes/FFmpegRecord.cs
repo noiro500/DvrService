@@ -9,7 +9,6 @@ public class FFmpegRecord : IFFmpegRecord
     private readonly string PathFFmpeg;
     private readonly Camera _camera;
     private Process? FFmpegProcess { get; set; }
-    private int RestartRecordAfterHours { get; set; }
 
     public FFmpegRecord(string pathFFmpeg, string? cameraName, string cameraUrl, string pathRecord, bool encoderRecord, string encoderQuality, int recordTimeMin, int restartRecordAfterHours)
     {
@@ -24,7 +23,6 @@ public class FFmpegRecord : IFFmpegRecord
             EncodeQuality = encoderQuality,
             RecordTimeMin = int.Abs(recordTimeMin)
         };
-        RestartRecordAfterHours = int.Abs(restartRecordAfterHours);
     }
 
     public async Task<Process> StartFfmpegRecordAsync()
@@ -66,9 +64,21 @@ public class FFmpegRecord : IFFmpegRecord
 
     public async Task FFmpegRecordStopAsync()
     {
-        Debug.WriteLine($"Завершение процесса {FFmpegProcess!.Id}");
-        FFmpegProcess.Kill();
+#if DEBUG
+        Console.WriteLine($"Завершение процесса {FFmpegProcess!.Id}");
+#endif
+        //FFmpegProcess.Kill();
+        if (FFmpegProcess != null && !FFmpegProcess.HasExited)
+        {
+            using (var streamWriter = FFmpegProcess.StandardInput)
+            {
+                if (streamWriter.BaseStream.CanWrite)
+                    streamWriter.WriteLine("q");
+            }
+        }
         await FFmpegProcess.WaitForExitAsync();
-        Debug.WriteLine($"FFmpegRecord остановлен");
+#if DEBUG
+        Console.WriteLine($"FFmpegRecord остановлен");
+#endif
     }
 }
