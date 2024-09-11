@@ -16,9 +16,9 @@ public class RecordControl : IRecordControl
     public RecordControl(string configPath)
     {
         Config = new Config(configPath);
-        FFmpegRecordList = new();
-        FilesWatcherList = new();
-        FfmpegProcess = new();
+        FFmpegRecordList = [];
+        FilesWatcherList = [];
+        FfmpegProcess = [];
         _semaphore = new SemaphoreSlim(1, 1);
         InitializationRecordControl();
         if (Config.CheckOfRecordFilesTimeMin != 0)
@@ -34,7 +34,7 @@ public class RecordControl : IRecordControl
 
     private async Task FFmpegProcessControlAsync()
     {
-        List<bool> flags = new();
+        List<bool> flags = [];
         var format = "yyyy-MM-dd_HH-mm-ss";
         var schedule = JobManager.GetSchedule("FFmpegProcessControl");
         await _semaphore.WaitAsync();

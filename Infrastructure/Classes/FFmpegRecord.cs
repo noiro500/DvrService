@@ -41,7 +41,7 @@ public class FFmpegRecord : IFFmpegRecord
                     else
                     {
                         arguments =
-                            $" -hide_banner -y -loglevel fatal -rtsp_transport tcp -use_wallclock_as_timestamps 1 -i \"{_camera.CameraUrl}\" -vcodec copy  -f segment -reset_timestamps 1 -segment_time {_camera.RecordTimeMin * 60} -segment_format mkv -segment_atclocktime 1 -strftime 1  \"{_camera.PathRecord}\\%Y-%m-%d_%H-%M-%S.mkv\"";
+                            $" -hide_banner -y -loglevel fatal -rtsp_transport tcp -use_wallclock_as_timestamps 1 -i \"{_camera.CameraUrl}\" -vcodec copy -bufsize 4M  -f segment -reset_timestamps 1 -segment_time {_camera.RecordTimeMin * 60} -segment_format mkv -segment_atclocktime 1 -strftime 1  \"{_camera.PathRecord}\\%Y-%m-%d_%H-%M-%S.mkv\"";
 
                     }
                     ProcessStartInfo startInfo = new()
@@ -70,13 +70,14 @@ public class FFmpegRecord : IFFmpegRecord
         //FFmpegProcess.Kill();
         if (FFmpegProcess != null && !FFmpegProcess.HasExited)
         {
-            using (var streamWriter = FFmpegProcess.StandardInput)
-            {
-                if (streamWriter.BaseStream.CanWrite)
-                    streamWriter.WriteLine("q");
-            }
+            await using var streamWriter = FFmpegProcess.StandardInput;
+            if (streamWriter.BaseStream.CanWrite)
+                streamWriter.WriteLine("q");
         }
         await FFmpegProcess.WaitForExitAsync();
+        await Task.Delay(3000);
+        if (!FFmpegProcess.HasExited)
+            FFmpegProcess.Kill();
 #if DEBUG
         Console.WriteLine($"FFmpegRecord остановлен");
 #endif
