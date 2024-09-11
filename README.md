@@ -21,8 +21,7 @@
         CameraUrl - путь до rtsp потока IP-камеры с логином и паролем
         PathRecord - каталог для записи видео. Важно: для каждой камеры каталог должен быть уникальным
         EncodeRecord - конверитровать ли видео в формат x264. Должно принимать значение true/false
-        EncodeQuality - качество конверитрования видео. Может принимать значения (в порядке увеличения качетва кодирования): ultrafast, superfast, veryfast, faster, fast, medium, slow, slower
-veryslow  Если EncodeRecord равно false, то параметр игнорируется.
+        EncodeQuality - качество конверитрования видео. Может принимать значения (в порядке увеличения качетва кодирования): ultrafast, superfast, veryfast, faster, fast, medium, slow, slower, veryslow  Если EncodeRecord равно false, то параметр игнорируется.
         RecordTimeMin - время записи фрагмента видео в минутах
         NumberFilesInFolder - количество файлов в каталоге. Общее время записи видео расчитывается по формуле RecordTimeMin * NumberFilesInFolder
         RemoveOldFilesAfterMin - через какой промежуток времени в минурах запустится процедура удаления страрых файлов
