@@ -74,7 +74,7 @@ public class RecordControl : IRecordControl
 #if DEBUG
             Console.WriteLine("Сработало исключение в FFmpegProcessControlAsync");
 #endif
-            await Properties.errorFiles.WriteLineAsync($"Error: {ex.Message}! ошибка в методе FFmpegProcessControlAsync");
+            await Properties.WriteErrorsAsync($"Error: {ex.Message}! ошибка в методе FFmpegProcessControlAsync");
             _semaphore.Release();
         }
     }
@@ -101,8 +101,7 @@ public class RecordControl : IRecordControl
         catch (Exception ex)
         {
             Debug.WriteLine("Ошибка чтения файла конфигурации");
-            Properties.errorFiles.WriteLineAsync($"Error: {ex.Message}! Service not start.");
-            Properties.errorFiles.Close();
+            Properties.WriteErrors($"Error: {ex.Message}! Service not start.");
             Environment.Exit(1);
         }
     }
@@ -139,14 +138,12 @@ public class RecordControl : IRecordControl
         }
         catch (ArgumentOutOfRangeException ex)
         {
-            await Properties.errorFiles.WriteLineAsync($"Error: {ex.Message}! Service not start.");
-            Properties.errorFiles.Close();
+            await Properties.WriteErrorsAsync($"Error: {ex.Message}! Service not start.");
             Environment.Exit(1);
         }
         catch (Exception ex)
         {
-            await Properties.errorFiles.WriteLineAsync($"Error: {ex.Message}! Service not start.");
-            Properties.errorFiles.Close();
+            await Properties.WriteErrorsAsync($"Error: {ex.Message}! Service not start.");
             Environment.Exit(1);
         }
     }
@@ -183,7 +180,7 @@ public class RecordControl : IRecordControl
         }
         catch (Exception e)
         {
-            await Properties.errorFiles.WriteLineAsync($"Error: {e.Message}!");
+            await Properties.WriteErrorsAsync($"Error: {e.Message}!");
             _semaphore.Release();
         }
 

@@ -51,7 +51,8 @@ namespace DvrService.Infrastructure.Classes
             }
             catch (Exception ex)
             {
-                Properties.errorFiles.WriteLine($"Error:\n{ex.Message}\nОшибка в конфигурационном файле ServiceConfig.json");
+                Properties.errorFiles.WriteLine();
+                Properties.WriteErrors($"Error:\n{ex.Message}\nОшибка в конфигурационном файле ServiceConfig.json");
                 Properties.errorFiles.Close();
                 Environment.Exit(1);
             }

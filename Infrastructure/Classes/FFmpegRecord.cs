@@ -52,11 +52,20 @@ public class FFmpegRecord : IFFmpegRecord
                         RedirectStandardInput = true
                     };
                     FFmpegProcess = Process.Start(startInfo);
-                    Debug.WriteLine(FFmpegProcess!.Id + " " + FFmpegProcess.ProcessName + $"Task ID= {Task.CurrentId}");
+#if DEBUG
+                    Console.WriteLine(FFmpegProcess!.Id + " " + FFmpegProcess.ProcessName + $"Task ID= {Task.CurrentId}");
+#endif
                 }
                 finally
                 {
-                    Debug.WriteLine("Не удалось запустить процесс");
+                    if (FFmpegProcess is null)
+                    {
+#if DEBUG
+                        Console.WriteLine("Не удалось запустить процесс ffmpeg");
+#endif
+                        Properties.WriteErrors("Не удалось запустить процесс ffmpeg\n");
+                        Environment.Exit(1);
+                    }
                 }
             });
         return FFmpegProcess!;
