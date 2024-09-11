@@ -7,17 +7,22 @@
 1. Скачать и установить ffmpeg.
 2. Распоковать скачанные файлы из архива DvrService.zip.
 3. Подготовить файл конфигурации ServiceConfig.json.
-4. Установить DvrService в качестве службы клмандой (от имени администратора): *sc create DvrService binPath= "{путь к DvrService.exe}\DvrService.exe {путь к файлу ServiceConfig.json}" start= delayed-auto*
+4. Установить DvrService в качестве службы командой (от имени администратора): *sc create DvrService binPath= "{путь к DvrService.exe}\DvrService.exe {путь к файлу ServiceConfig.json}" start= delayed-auto*
 5. Если путь путь к файлу ServiceConfig.json не установлен, то служба ищет его по адресу *{каталог windows}\system32\Infrastructure\Config\ServiceConfig.json*
    
+## Пример файла ServiceConfig.json
+
 ## Расшифровка параметров в файле ServiceConfig.json
     FFmpegPath - путь к исполняемому файлу ffmpeg.exe
     CheckOfRecordFilesTimeMin - время в минутах, через которое запускается процедура проверки файлов в папке (в случае сбоя перезапускает ffmpeg)
+    RestartRecordAfterHours - через какой промежуток времени в часах перезапускать запись видео (необходимо при нестабильном потоке с камер). Значение 0 отключает перезапуск.
     Cameras - список камер с параметрами
         CameraName - описание камеры
-        CameraUrl - путь до rtsp потока IP-камеры
+        CameraUrl - путь до rtsp потока IP-камеры с логином и паролем
         PathRecord - каталог для записи видео. Важно: для каждой камеры каталог должен быть уникальным
+        EncodeRecord - конверитровать ли видео в формат x264. Должно принимать значение true/false
+        EncodeQuality - качество конверитрования видео. Может принимать значения (в порядке увеличения качетва кодирования): ultrafast, superfast, veryfast, faster, fast, medium, slow, slower
+veryslow  Если EncodeRecord равно false, то параметр игнорируется.
         RecordTimeMin - время записи фрагмента видео в минутах
         NumberFilesInFolder - количество файлов в каталоге. Общее время записи видео расчитывается по формуле RecordTimeMin * NumberFilesInFolder
         RemoveOldFilesAfterMin - через какой промежуток времени в минурах запустится процедура удаления страрых файлов
-        RestartRecordAfterHours - через какой промежуток времени в часах перезапускать запись видео (необходимо при нестабильном потоке с камер). Значение -1 отключает перезапуск.
