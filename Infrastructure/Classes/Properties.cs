@@ -2,7 +2,6 @@
 {
     public static class Properties
     {
-        //public static ConcurrentBag<Process> FFmpegProcessBag { get; set; }
         public static StreamWriter errorFiles;
         static Properties()
         {
