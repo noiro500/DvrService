@@ -5,7 +5,7 @@
   "Cameras": [
     {
       "CameraName": "Camera from garden",
-      "CameraUrl": "rtsp://192.168.1.9:554/user=video&password=110127&channel=1&stream=0",
+      "CameraUrl": "rtsp://192.168.1.9:554/user={user}&password={password}&channel=1&stream=0",
       "PathRecord": "D:\\TEMP\\video2",
       "EncodeRecord": false,
       "EncodeQuality": "medium",
@@ -15,7 +15,7 @@
     },
     {
       "CameraName": "Camera from entrance",
-      "CameraUrl": "rtsp://video:110127@192.168.1.16:554/stream0",
+      "CameraUrl": "rtsp://{user}:{password}@192.168.1.16:554/stream0",
       "PathRecord": "D:\\TEMP\\video1",
       "EncodeRecord": false,
       "EncodeQuality": "medium",
