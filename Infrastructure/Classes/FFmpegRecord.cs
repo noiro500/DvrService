@@ -76,7 +76,7 @@ public class FFmpegRecord : IFFmpegRecord
 #if DEBUG
         Console.WriteLine($"Завершение процесса {FFmpegProcess!.Id}");
 #endif
-        //FFmpegProcess.Kill();
+        FFmpegProcess.Kill();
         /*if (FFmpegProcess != null && !FFmpegProcess.HasExited)
         {
             await using var streamWriter = FFmpegProcess.StandardInput;
@@ -86,7 +86,7 @@ public class FFmpegRecord : IFFmpegRecord
         await FFmpegProcess.WaitForExitAsync();
         await Task.Delay(3000);
         if (!FFmpegProcess.HasExited)*/
-            FFmpegProcess.Kill();
+            // FFmpegProcess.Kill();
 #if DEBUG
         Console.WriteLine($"FFmpegRecord остановлен");
 #endif
